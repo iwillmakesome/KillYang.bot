@@ -30,8 +30,23 @@ client.once("ready", () => {
   });
 
   console.log(client.user.tag + " ready!");
+  // client.application.commands.create(
+  //   new SlashCommandBuilder().setName("test").setDescription("test")
+  // );
   client.application.commands.create(
-    new SlashCommandBuilder().setName("test").setDescription("test")
+    new SlashCommandBuilder()
+      .setName("kill")
+      .setDescription("양범건을 죽이고싶나요?")
+  );
+  client.application.commands.create(
+    new SlashCommandBuilder()
+      .setName("deathcount")
+      .setDescription("양범건이 몇 번 죽었는지 확인할 수 있어요.")
+  );
+  client.application.commands.create(
+    new SlashCommandBuilder()
+      .setName("lastdeath")
+      .setDescription("죽은 양범건을 기리며...")
   );
 });
 
@@ -41,7 +56,6 @@ client.on("messageCreate", async (msg) => {
   if (content == ":emoji_3:" || content == "<:emoji_3:877020440093163601>") {
     const lastDeats = await getLastDeath();
     msg.reply(`RIP 양범건 (2002.12.26 ~ ${formatDate(lastDeats)})`);
-    return;
   }
 
   if (
@@ -51,13 +65,11 @@ client.on("messageCreate", async (msg) => {
   ) {
     msg.reply(`당신은 양범건을 죽였습니다. RIP 양범건`);
     await setLastDeath();
-    return;
   }
 
   if (content == "양범건 죽은 횟수") {
     const deathCount = await getDeathCount();
     msg.reply(`양범건은 지금까지 ${deathCount}번 죽었습니다.`);
-    return;
   }
 });
 
@@ -115,6 +127,34 @@ const formatDate = (isoString) => {
 
   return `${year}.${month}.${day}`;
 };
+
+// slash commend response
+client.on("interactionCreate", async (interaction) => {
+  if (!interaction.isCommand()) return;
+
+  const { commandName } = interaction;
+
+  // if (commandName === "test") {
+  //   await interaction.reply("This is a test response!");
+  // }
+
+  if (commandName === "deathCount") {
+    const deathCount = await getDeathCount();
+    await interaction.reply(`양범건은 지금까지 ${deathCount}번 죽었습니다.`);
+  }
+
+  if (commandName === "lastDeath") {
+    const lastDeats = await getLastDeath();
+    await interaction.reply(
+      `RIP 양범건 (2002.12.26 ~ ${formatDate(lastDeats)})`
+    );
+  }
+
+  if (commandName === "kill") {
+    await setLastDeath();
+    msg.reply(`당신은 양범건을 죽였습니다. RIP 양범건`);
+  }
+});
 
 //// healthCheck
 const express = require("express");
