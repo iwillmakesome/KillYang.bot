@@ -58,7 +58,11 @@ client.on("messageCreate", async (msg) => {
     return;
   }
 
-  if (content == "죽어 양범건") {
+  if (
+    content.includes("죽어 양범건") ||
+    content.includes("양범건 죽어") ||
+    content.includes("죽어")
+  ) {
     msg.reply(`당신은 양범건을 죽였습니다. RIP 양범건`);
     await setLastDeath();
     return;
