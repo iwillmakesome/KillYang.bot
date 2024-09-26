@@ -40,7 +40,7 @@ client.once("ready", () => {
 });
 
 // dotenv 업로드 하면 지워주기
-// require("dotenv").config();
+require("dotenv").config();
 client.login(process.env.token);
 client.once("ready", () => {
   console.log(client.user.tag + " ready!");

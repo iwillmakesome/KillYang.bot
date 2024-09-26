@@ -70885,392 +70885,341 @@ var require_src = __commonJS({
   }
 });
 
-// node_modules/file-uri-to-path/index.js
-var require_file_uri_to_path = __commonJS({
-  "node_modules/file-uri-to-path/index.js"(exports2, module2) {
-    var sep = require("path").sep || "/";
-    module2.exports = fileUriToPath;
-    function fileUriToPath(uri) {
-      if ("string" != typeof uri || uri.length <= 7 || "file://" != uri.substring(0, 7)) {
-        throw new TypeError("must pass in a file:// URI to convert to a file path");
+// node_modules/dotenv/package.json
+var require_package2 = __commonJS({
+  "node_modules/dotenv/package.json"(exports2, module2) {
+    module2.exports = {
+      name: "dotenv",
+      version: "16.4.5",
+      description: "Loads environment variables from .env file",
+      main: "lib/main.js",
+      types: "lib/main.d.ts",
+      exports: {
+        ".": {
+          types: "./lib/main.d.ts",
+          require: "./lib/main.js",
+          default: "./lib/main.js"
+        },
+        "./config": "./config.js",
+        "./config.js": "./config.js",
+        "./lib/env-options": "./lib/env-options.js",
+        "./lib/env-options.js": "./lib/env-options.js",
+        "./lib/cli-options": "./lib/cli-options.js",
+        "./lib/cli-options.js": "./lib/cli-options.js",
+        "./package.json": "./package.json"
+      },
+      scripts: {
+        "dts-check": "tsc --project tests/types/tsconfig.json",
+        lint: "standard",
+        "lint-readme": "standard-markdown",
+        pretest: "npm run lint && npm run dts-check",
+        test: "tap tests/*.js --100 -Rspec",
+        "test:coverage": "tap --coverage-report=lcov",
+        prerelease: "npm test",
+        release: "standard-version"
+      },
+      repository: {
+        type: "git",
+        url: "git://github.com/motdotla/dotenv.git"
+      },
+      funding: "https://dotenvx.com",
+      keywords: [
+        "dotenv",
+        "env",
+        ".env",
+        "environment",
+        "variables",
+        "config",
+        "settings"
+      ],
+      readmeFilename: "README.md",
+      license: "BSD-2-Clause",
+      devDependencies: {
+        "@definitelytyped/dtslint": "^0.0.133",
+        "@types/node": "^18.11.3",
+        decache: "^4.6.1",
+        sinon: "^14.0.1",
+        standard: "^17.0.0",
+        "standard-markdown": "^7.1.0",
+        "standard-version": "^9.5.0",
+        tap: "^16.3.0",
+        tar: "^6.1.11",
+        typescript: "^4.8.4"
+      },
+      engines: {
+        node: ">=12"
+      },
+      browser: {
+        fs: false
       }
-      var rest = decodeURI(uri.substring(7));
-      var firstSlash = rest.indexOf("/");
-      var host = rest.substring(0, firstSlash);
-      var path = rest.substring(firstSlash + 1);
-      if ("localhost" == host) host = "";
-      if (host) {
-        host = sep + sep + host;
-      }
-      path = path.replace(/^(.+)\|/, "$1:");
-      if (sep == "\\") {
-        path = path.replace(/\//g, "\\");
-      }
-      if (/^.+\:/.test(path)) {
-      } else {
-        path = sep + path;
-      }
-      return host + path;
-    }
+    };
   }
 });
 
-// node_modules/bindings/bindings.js
-var require_bindings = __commonJS({
-  "node_modules/bindings/bindings.js"(exports2, module2) {
+// node_modules/dotenv/lib/main.js
+var require_main = __commonJS({
+  "node_modules/dotenv/lib/main.js"(exports2, module2) {
     var fs = require("fs");
     var path = require("path");
-    var fileURLToPath = require_file_uri_to_path();
-    var join = path.join;
-    var dirname = path.dirname;
-    var exists = fs.accessSync && function(path2) {
-      try {
-        fs.accessSync(path2);
-      } catch (e) {
-        return false;
+    var os = require("os");
+    var crypto = require("crypto");
+    var packageJson = require_package2();
+    var version = packageJson.version;
+    var LINE = /(?:^|^)\s*(?:export\s+)?([\w.-]+)(?:\s*=\s*?|:\s+?)(\s*'(?:\\'|[^'])*'|\s*"(?:\\"|[^"])*"|\s*`(?:\\`|[^`])*`|[^#\r\n]+)?\s*(?:#.*)?(?:$|$)/mg;
+    function parse(src) {
+      const obj = {};
+      let lines = src.toString();
+      lines = lines.replace(/\r\n?/mg, "\n");
+      let match;
+      while ((match = LINE.exec(lines)) != null) {
+        const key = match[1];
+        let value = match[2] || "";
+        value = value.trim();
+        const maybeQuote = value[0];
+        value = value.replace(/^(['"`])([\s\S]*)\1$/mg, "$2");
+        if (maybeQuote === '"') {
+          value = value.replace(/\\n/g, "\n");
+          value = value.replace(/\\r/g, "\r");
+        }
+        obj[key] = value;
       }
-      return true;
-    } || fs.existsSync || path.existsSync;
-    var defaults = {
-      arrow: process.env.NODE_BINDINGS_ARROW || " \u2192 ",
-      compiled: process.env.NODE_BINDINGS_COMPILED_DIR || "compiled",
-      platform: process.platform,
-      arch: process.arch,
-      nodePreGyp: "node-v" + process.versions.modules + "-" + process.platform + "-" + process.arch,
-      version: process.versions.node,
-      bindings: "bindings.node",
-      try: [
-        // node-gyp's linked version in the "build" dir
-        ["module_root", "build", "bindings"],
-        // node-waf and gyp_addon (a.k.a node-gyp)
-        ["module_root", "build", "Debug", "bindings"],
-        ["module_root", "build", "Release", "bindings"],
-        // Debug files, for development (legacy behavior, remove for node v0.9)
-        ["module_root", "out", "Debug", "bindings"],
-        ["module_root", "Debug", "bindings"],
-        // Release files, but manually compiled (legacy behavior, remove for node v0.9)
-        ["module_root", "out", "Release", "bindings"],
-        ["module_root", "Release", "bindings"],
-        // Legacy from node-waf, node <= 0.4.x
-        ["module_root", "build", "default", "bindings"],
-        // Production "Release" buildtype binary (meh...)
-        ["module_root", "compiled", "version", "platform", "arch", "bindings"],
-        // node-qbs builds
-        ["module_root", "addon-build", "release", "install-root", "bindings"],
-        ["module_root", "addon-build", "debug", "install-root", "bindings"],
-        ["module_root", "addon-build", "default", "install-root", "bindings"],
-        // node-pre-gyp path ./lib/binding/{node_abi}-{platform}-{arch}
-        ["module_root", "lib", "binding", "nodePreGyp", "bindings"]
-      ]
-    };
-    function bindings(opts) {
-      if (typeof opts == "string") {
-        opts = { bindings: opts };
-      } else if (!opts) {
-        opts = {};
+      return obj;
+    }
+    function _parseVault(options) {
+      const vaultPath = _vaultPath(options);
+      const result = DotenvModule.configDotenv({ path: vaultPath });
+      if (!result.parsed) {
+        const err = new Error(`MISSING_DATA: Cannot parse ${vaultPath} for an unknown reason`);
+        err.code = "MISSING_DATA";
+        throw err;
       }
-      Object.keys(defaults).map(function(i2) {
-        if (!(i2 in opts)) opts[i2] = defaults[i2];
-      });
-      if (!opts.module_root) {
-        opts.module_root = exports2.getRoot(exports2.getFileName());
-      }
-      if (path.extname(opts.bindings) != ".node") {
-        opts.bindings += ".node";
-      }
-      var requireFunc = typeof __webpack_require__ === "function" ? __non_webpack_require__ : require;
-      var tries = [], i = 0, l = opts.try.length, n, b, err;
-      for (; i < l; i++) {
-        n = join.apply(
-          null,
-          opts.try[i].map(function(p) {
-            return opts[p] || p;
-          })
-        );
-        tries.push(n);
+      const keys = _dotenvKey(options).split(",");
+      const length = keys.length;
+      let decrypted;
+      for (let i = 0; i < length; i++) {
         try {
-          b = opts.path ? requireFunc.resolve(n) : requireFunc(n);
-          if (!opts.path) {
-            b.path = n;
-          }
-          return b;
-        } catch (e) {
-          if (e.code !== "MODULE_NOT_FOUND" && e.code !== "QUALIFIED_PATH_RESOLUTION_FAILED" && !/not find/i.test(e.message)) {
-            throw e;
+          const key = keys[i].trim();
+          const attrs = _instructions(result, key);
+          decrypted = DotenvModule.decrypt(attrs.ciphertext, attrs.key);
+          break;
+        } catch (error) {
+          if (i + 1 >= length) {
+            throw error;
           }
         }
       }
-      err = new Error(
-        "Could not locate the bindings file. Tried:\n" + tries.map(function(a) {
-          return opts.arrow + a;
-        }).join("\n")
-      );
-      err.tries = tries;
-      throw err;
+      return DotenvModule.parse(decrypted);
     }
-    module2.exports = exports2 = bindings;
-    exports2.getFileName = function getFileName(calling_file) {
-      var origPST = Error.prepareStackTrace, origSTL = Error.stackTraceLimit, dummy = {}, fileName;
-      Error.stackTraceLimit = 10;
-      Error.prepareStackTrace = function(e, st) {
-        for (var i = 0, l = st.length; i < l; i++) {
-          fileName = st[i].getFileName();
-          if (fileName !== __filename) {
-            if (calling_file) {
-              if (fileName !== calling_file) {
-                return;
-              }
-            } else {
-              return;
+    function _log(message) {
+      console.log(`[dotenv@${version}][INFO] ${message}`);
+    }
+    function _warn(message) {
+      console.log(`[dotenv@${version}][WARN] ${message}`);
+    }
+    function _debug(message) {
+      console.log(`[dotenv@${version}][DEBUG] ${message}`);
+    }
+    function _dotenvKey(options) {
+      if (options && options.DOTENV_KEY && options.DOTENV_KEY.length > 0) {
+        return options.DOTENV_KEY;
+      }
+      if (process.env.DOTENV_KEY && process.env.DOTENV_KEY.length > 0) {
+        return process.env.DOTENV_KEY;
+      }
+      return "";
+    }
+    function _instructions(result, dotenvKey) {
+      let uri;
+      try {
+        uri = new URL(dotenvKey);
+      } catch (error) {
+        if (error.code === "ERR_INVALID_URL") {
+          const err = new Error("INVALID_DOTENV_KEY: Wrong format. Must be in valid uri format like dotenv://:key_1234@dotenvx.com/vault/.env.vault?environment=development");
+          err.code = "INVALID_DOTENV_KEY";
+          throw err;
+        }
+        throw error;
+      }
+      const key = uri.password;
+      if (!key) {
+        const err = new Error("INVALID_DOTENV_KEY: Missing key part");
+        err.code = "INVALID_DOTENV_KEY";
+        throw err;
+      }
+      const environment = uri.searchParams.get("environment");
+      if (!environment) {
+        const err = new Error("INVALID_DOTENV_KEY: Missing environment part");
+        err.code = "INVALID_DOTENV_KEY";
+        throw err;
+      }
+      const environmentKey = `DOTENV_VAULT_${environment.toUpperCase()}`;
+      const ciphertext = result.parsed[environmentKey];
+      if (!ciphertext) {
+        const err = new Error(`NOT_FOUND_DOTENV_ENVIRONMENT: Cannot locate environment ${environmentKey} in your .env.vault file.`);
+        err.code = "NOT_FOUND_DOTENV_ENVIRONMENT";
+        throw err;
+      }
+      return { ciphertext, key };
+    }
+    function _vaultPath(options) {
+      let possibleVaultPath = null;
+      if (options && options.path && options.path.length > 0) {
+        if (Array.isArray(options.path)) {
+          for (const filepath of options.path) {
+            if (fs.existsSync(filepath)) {
+              possibleVaultPath = filepath.endsWith(".vault") ? filepath : `${filepath}.vault`;
             }
           }
-        }
-      };
-      Error.captureStackTrace(dummy);
-      dummy.stack;
-      Error.prepareStackTrace = origPST;
-      Error.stackTraceLimit = origSTL;
-      var fileSchema = "file://";
-      if (fileName.indexOf(fileSchema) === 0) {
-        fileName = fileURLToPath(fileName);
-      }
-      return fileName;
-    };
-    exports2.getRoot = function getRoot(file) {
-      var dir = dirname(file), prev;
-      while (true) {
-        if (dir === ".") {
-          dir = process.cwd();
-        }
-        if (exists(join(dir, "package.json")) || exists(join(dir, "node_modules"))) {
-          return dir;
-        }
-        if (prev === dir) {
-          throw new Error(
-            'Could not find module root given file: "' + file + '". Do you have a `package.json` file? '
-          );
-        }
-        prev = dir;
-        dir = join(dir, "..");
-      }
-    };
-  }
-});
-
-// node_modules/sqlite3/lib/sqlite3-binding.js
-var require_sqlite3_binding = __commonJS({
-  "node_modules/sqlite3/lib/sqlite3-binding.js"(exports2, module2) {
-    module2.exports = require_bindings()("node_sqlite3.node");
-  }
-});
-
-// node_modules/sqlite3/lib/trace.js
-var require_trace = __commonJS({
-  "node_modules/sqlite3/lib/trace.js"(exports2) {
-    var util = require("util");
-    function extendTrace(object, property, pos) {
-      const old = object[property];
-      object[property] = function() {
-        const error = new Error();
-        const name = object.constructor.name + "#" + property + "(" + Array.prototype.slice.call(arguments).map(function(el) {
-          return util.inspect(el, false, 0);
-        }).join(", ") + ")";
-        if (typeof pos === "undefined") pos = -1;
-        if (pos < 0) pos += arguments.length;
-        const cb = arguments[pos];
-        if (typeof arguments[pos] === "function") {
-          arguments[pos] = function replacement() {
-            const err = arguments[0];
-            if (err && err.stack && !err.__augmented) {
-              err.stack = filter(err).join("\n");
-              err.stack += "\n--> in " + name;
-              err.stack += "\n" + filter(error).slice(1).join("\n");
-              err.__augmented = true;
-            }
-            return cb.apply(this, arguments);
-          };
-        }
-        return old.apply(this, arguments);
-      };
-    }
-    exports2.extendTrace = extendTrace;
-    function filter(error) {
-      return error.stack.split("\n").filter(function(line) {
-        return line.indexOf(__filename) < 0;
-      });
-    }
-  }
-});
-
-// node_modules/sqlite3/lib/sqlite3.js
-var require_sqlite3 = __commonJS({
-  "node_modules/sqlite3/lib/sqlite3.js"(exports2, module2) {
-    var path = require("path");
-    var sqlite32 = require_sqlite3_binding();
-    var EventEmitter = require("events").EventEmitter;
-    module2.exports = exports2 = sqlite32;
-    function normalizeMethod(fn) {
-      return function(sql) {
-        let errBack;
-        const args = Array.prototype.slice.call(arguments, 1);
-        if (typeof args[args.length - 1] === "function") {
-          const callback = args[args.length - 1];
-          errBack = function(err) {
-            if (err) {
-              callback(err);
-            }
-          };
-        }
-        const statement = new Statement(this, sql, errBack);
-        return fn.call(this, statement, args);
-      };
-    }
-    function inherits(target, source) {
-      for (const k in source.prototype)
-        target.prototype[k] = source.prototype[k];
-    }
-    sqlite32.cached = {
-      Database: function(file, a, b) {
-        if (file === "" || file === ":memory:") {
-          return new Database(file, a, b);
-        }
-        let db2;
-        file = path.resolve(file);
-        if (!sqlite32.cached.objects[file]) {
-          db2 = sqlite32.cached.objects[file] = new Database(file, a, b);
         } else {
-          db2 = sqlite32.cached.objects[file];
-          const callback = typeof a === "number" ? b : a;
-          if (typeof callback === "function") {
-            let cb2 = function() {
-              callback.call(db2, null);
-            };
-            var cb = cb2;
-            if (db2.open) process.nextTick(cb2);
-            else db2.once("open", cb2);
-          }
+          possibleVaultPath = options.path.endsWith(".vault") ? options.path : `${options.path}.vault`;
         }
-        return db2;
-      },
-      objects: {}
-    };
-    var Database = sqlite32.Database;
-    var Statement = sqlite32.Statement;
-    var Backup = sqlite32.Backup;
-    inherits(Database, EventEmitter);
-    inherits(Statement, EventEmitter);
-    inherits(Backup, EventEmitter);
-    Database.prototype.prepare = normalizeMethod(function(statement, params) {
-      return params.length ? statement.bind.apply(statement, params) : statement;
-    });
-    Database.prototype.run = normalizeMethod(function(statement, params) {
-      statement.run.apply(statement, params).finalize();
-      return this;
-    });
-    Database.prototype.get = normalizeMethod(function(statement, params) {
-      statement.get.apply(statement, params).finalize();
-      return this;
-    });
-    Database.prototype.all = normalizeMethod(function(statement, params) {
-      statement.all.apply(statement, params).finalize();
-      return this;
-    });
-    Database.prototype.each = normalizeMethod(function(statement, params) {
-      statement.each.apply(statement, params).finalize();
-      return this;
-    });
-    Database.prototype.map = normalizeMethod(function(statement, params) {
-      statement.map.apply(statement, params).finalize();
-      return this;
-    });
-    Database.prototype.backup = function() {
-      let backup;
-      if (arguments.length <= 2) {
-        backup = new Backup(this, arguments[0], "main", "main", true, arguments[1]);
       } else {
-        backup = new Backup(this, arguments[0], arguments[1], arguments[2], arguments[3], arguments[4]);
+        possibleVaultPath = path.resolve(process.cwd(), ".env.vault");
       }
-      backup.retryErrors = [sqlite32.BUSY, sqlite32.LOCKED];
-      return backup;
-    };
-    Statement.prototype.map = function() {
-      const params = Array.prototype.slice.call(arguments);
-      const callback = params.pop();
-      params.push(function(err, rows) {
-        if (err) return callback(err);
-        const result = {};
-        if (rows.length) {
-          const keys = Object.keys(rows[0]);
-          const key = keys[0];
-          if (keys.length > 2) {
-            for (let i = 0; i < rows.length; i++) {
-              result[rows[i][key]] = rows[i];
-            }
-          } else {
-            const value = keys[1];
-            for (let i = 0; i < rows.length; i++) {
-              result[rows[i][key]] = rows[i][value];
-            }
+      if (fs.existsSync(possibleVaultPath)) {
+        return possibleVaultPath;
+      }
+      return null;
+    }
+    function _resolveHome(envPath) {
+      return envPath[0] === "~" ? path.join(os.homedir(), envPath.slice(1)) : envPath;
+    }
+    function _configVault(options) {
+      _log("Loading env from encrypted .env.vault");
+      const parsed = DotenvModule._parseVault(options);
+      let processEnv = process.env;
+      if (options && options.processEnv != null) {
+        processEnv = options.processEnv;
+      }
+      DotenvModule.populate(processEnv, parsed, options);
+      return { parsed };
+    }
+    function configDotenv(options) {
+      const dotenvPath = path.resolve(process.cwd(), ".env");
+      let encoding = "utf8";
+      const debug = Boolean(options && options.debug);
+      if (options && options.encoding) {
+        encoding = options.encoding;
+      } else {
+        if (debug) {
+          _debug("No encoding is specified. UTF-8 is used by default");
+        }
+      }
+      let optionPaths = [dotenvPath];
+      if (options && options.path) {
+        if (!Array.isArray(options.path)) {
+          optionPaths = [_resolveHome(options.path)];
+        } else {
+          optionPaths = [];
+          for (const filepath of options.path) {
+            optionPaths.push(_resolveHome(filepath));
           }
         }
-        callback(err, result);
-      });
-      return this.all.apply(this, params);
-    };
-    var isVerbose = false;
-    var supportedEvents = ["trace", "profile", "change"];
-    Database.prototype.addListener = Database.prototype.on = function(type) {
-      const val = EventEmitter.prototype.addListener.apply(this, arguments);
-      if (supportedEvents.indexOf(type) >= 0) {
-        this.configure(type, true);
       }
-      return val;
-    };
-    Database.prototype.removeListener = function(type) {
-      const val = EventEmitter.prototype.removeListener.apply(this, arguments);
-      if (supportedEvents.indexOf(type) >= 0 && !this._events[type]) {
-        this.configure(type, false);
+      let lastError;
+      const parsedAll = {};
+      for (const path2 of optionPaths) {
+        try {
+          const parsed = DotenvModule.parse(fs.readFileSync(path2, { encoding }));
+          DotenvModule.populate(parsedAll, parsed, options);
+        } catch (e) {
+          if (debug) {
+            _debug(`Failed to load ${path2} ${e.message}`);
+          }
+          lastError = e;
+        }
       }
-      return val;
-    };
-    Database.prototype.removeAllListeners = function(type) {
-      const val = EventEmitter.prototype.removeAllListeners.apply(this, arguments);
-      if (supportedEvents.indexOf(type) >= 0) {
-        this.configure(type, false);
+      let processEnv = process.env;
+      if (options && options.processEnv != null) {
+        processEnv = options.processEnv;
       }
-      return val;
-    };
-    sqlite32.verbose = function() {
-      if (!isVerbose) {
-        const trace = require_trace();
-        [
-          "prepare",
-          "get",
-          "run",
-          "all",
-          "each",
-          "map",
-          "close",
-          "exec"
-        ].forEach(function(name) {
-          trace.extendTrace(Database.prototype, name);
-        });
-        [
-          "bind",
-          "get",
-          "run",
-          "all",
-          "each",
-          "map",
-          "reset",
-          "finalize"
-        ].forEach(function(name) {
-          trace.extendTrace(Statement.prototype, name);
-        });
-        isVerbose = true;
+      DotenvModule.populate(processEnv, parsedAll, options);
+      if (lastError) {
+        return { parsed: parsedAll, error: lastError };
+      } else {
+        return { parsed: parsedAll };
       }
-      return sqlite32;
+    }
+    function config(options) {
+      if (_dotenvKey(options).length === 0) {
+        return DotenvModule.configDotenv(options);
+      }
+      const vaultPath = _vaultPath(options);
+      if (!vaultPath) {
+        _warn(`You set DOTENV_KEY but you are missing a .env.vault file at ${vaultPath}. Did you forget to build it?`);
+        return DotenvModule.configDotenv(options);
+      }
+      return DotenvModule._configVault(options);
+    }
+    function decrypt(encrypted, keyStr) {
+      const key = Buffer.from(keyStr.slice(-64), "hex");
+      let ciphertext = Buffer.from(encrypted, "base64");
+      const nonce = ciphertext.subarray(0, 12);
+      const authTag = ciphertext.subarray(-16);
+      ciphertext = ciphertext.subarray(12, -16);
+      try {
+        const aesgcm = crypto.createDecipheriv("aes-256-gcm", key, nonce);
+        aesgcm.setAuthTag(authTag);
+        return `${aesgcm.update(ciphertext)}${aesgcm.final()}`;
+      } catch (error) {
+        const isRange = error instanceof RangeError;
+        const invalidKeyLength = error.message === "Invalid key length";
+        const decryptionFailed = error.message === "Unsupported state or unable to authenticate data";
+        if (isRange || invalidKeyLength) {
+          const err = new Error("INVALID_DOTENV_KEY: It must be 64 characters long (or more)");
+          err.code = "INVALID_DOTENV_KEY";
+          throw err;
+        } else if (decryptionFailed) {
+          const err = new Error("DECRYPTION_FAILED: Please check your DOTENV_KEY");
+          err.code = "DECRYPTION_FAILED";
+          throw err;
+        } else {
+          throw error;
+        }
+      }
+    }
+    function populate(processEnv, parsed, options = {}) {
+      const debug = Boolean(options && options.debug);
+      const override = Boolean(options && options.override);
+      if (typeof parsed !== "object") {
+        const err = new Error("OBJECT_REQUIRED: Please check the processEnv argument being passed to populate");
+        err.code = "OBJECT_REQUIRED";
+        throw err;
+      }
+      for (const key of Object.keys(parsed)) {
+        if (Object.prototype.hasOwnProperty.call(processEnv, key)) {
+          if (override === true) {
+            processEnv[key] = parsed[key];
+          }
+          if (debug) {
+            if (override === true) {
+              _debug(`"${key}" is already defined and WAS overwritten`);
+            } else {
+              _debug(`"${key}" is already defined and was NOT overwritten`);
+            }
+          }
+        } else {
+          processEnv[key] = parsed[key];
+        }
+      }
+    }
+    var DotenvModule = {
+      configDotenv,
+      _configVault,
+      _parseVault,
+      config,
+      decrypt,
+      parse,
+      populate
     };
+    module2.exports.configDotenv = DotenvModule.configDotenv;
+    module2.exports._configVault = DotenvModule._configVault;
+    module2.exports._parseVault = DotenvModule._parseVault;
+    module2.exports.config = DotenvModule.config;
+    module2.exports.decrypt = DotenvModule.decrypt;
+    module2.exports.parse = DotenvModule.parse;
+    module2.exports.populate = DotenvModule.populate;
+    module2.exports = DotenvModule;
   }
 });
 
@@ -93466,7 +93415,7 @@ var {
 } = require_src();
 var { Guilds, GuildMessages, MessageContent } = GatewayIntentBits;
 var client = new Client2({ intents: [Guilds, GuildMessages, MessageContent] });
-var sqlite3 = require_sqlite3().verbose();
+var sqlite3 = require("sqlite3").verbose();
 var db = new sqlite3.Database("./LastDeath.db");
 client.once("ready", () => {
   console.log(client.user.tag + " ready!");
@@ -93486,6 +93435,7 @@ client.once("ready", () => {
     new SlashCommandBuilder().setName("test").setDescription("test")
   );
 });
+require_main().config();
 client.login(process.env.token);
 client.once("ready", () => {
   console.log(client.user.tag + " ready!");
