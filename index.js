@@ -11,7 +11,7 @@ const sqlite3 = require("sqlite3").verbose();
 const db = new sqlite3.Database("./LastDeath.db");
 
 // dotenv 업로드 하면 지워주기
-// require("dotenv").config();
+require("dotenv").config();
 
 client.login(process.env.token);
 client.once("ready", () => {
@@ -30,9 +30,6 @@ client.once("ready", () => {
   });
 
   console.log(client.user.tag + " ready!");
-  // client.application.commands.create(
-  //   new SlashCommandBuilder().setName("test").setDescription("test")
-  // );
   client.application.commands.create(
     new SlashCommandBuilder()
       .setName("kill")
@@ -84,7 +81,7 @@ const setLastDeath = async () => {
     if (err) {
       return console.error(err.message);
     }
-    console.log(`YBG is Killed on ${currentDate}`);
+    console.log(`YBG is Killed on ${formatDate(currentDate)}`);
   });
   stmt.finalize();
 };
@@ -98,7 +95,7 @@ const getLastDeath = async () => {
           return reject(err);
         }
         if (row) {
-          console.log(`lastDeath: ${row.date}`);
+          console.log(`lastDeath: ${formatDate(row.date)}`);
           resolve(row.date); // 마지막 죽은 날짜를 반환
         } else {
           resolve(null); // 데이터가 없는 경우
@@ -114,6 +111,7 @@ const getDeathCount = async () => {
       if (err) {
         return reject(err);
       }
+      console.log(`YBG was Killed ${row.count} times`);
       resolve(row.count); // 죽은 횟수를 반환
     });
   });
@@ -134,25 +132,35 @@ client.on("interactionCreate", async (interaction) => {
 
   const { commandName } = interaction;
 
-  // if (commandName === "test") {
-  //   await interaction.reply("This is a test response!");
-  // }
+  console.log("/" + commandName);
 
-  if (commandName === "deathCount") {
-    const deathCount = await getDeathCount();
-    await interaction.reply(`양범건은 지금까지 ${deathCount}번 죽었습니다.`);
+  if (commandName === "deathcount") {
+    try {
+      const deathCount = await getDeathCount();
+      await interaction.reply(`양범건은 지금까지 ${deathCount}번 죽었습니다.`);
+    } catch (err) {
+      console.log("deathcount err");
+    }
   }
 
-  if (commandName === "lastDeath") {
-    const lastDeats = await getLastDeath();
-    await interaction.reply(
-      `RIP 양범건 (2002.12.26 ~ ${formatDate(lastDeats)})`
-    );
+  if (commandName === "lastdeath") {
+    try {
+      const lastDeats = await getLastDeath();
+      await interaction.reply(
+        `RIP 양범건 (2002.12.26 ~ ${formatDate(lastDeats)})`
+      );
+    } catch (err) {
+      console.log("lasedeath err");
+    }
   }
 
   if (commandName === "kill") {
-    await setLastDeath();
-    await interaction.reply(`당신은 양범건을 죽였습니다. RIP 양범건`);
+    try {
+      await setLastDeath();
+      await interaction.reply(`당신은 양범건을 죽였습니다. RIP 양범건`);
+    } catch (err) {
+      console.log("kill err");
+    }
   }
 });
 
