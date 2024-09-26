@@ -10,15 +10,11 @@ const client = new Client({ intents: [Guilds, GuildMessages, MessageContent] });
 const sqlite3 = require("sqlite3").verbose();
 const db = new sqlite3.Database("./LastDeath.db");
 
-// db.serialize(() => {
-//   db.run(
-//     "CREATE TABLE IF NOT EXISTS lastDeath (id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT)"
-//   );
-// });
+// dotenv 업로드 하면 지워주기
+// require("dotenv").config();
 
+client.login(process.env.token);
 client.once("ready", () => {
-  console.log(client.user.tag + " ready!");
-
   // SQLite DB 생성 및 테이블 생성
   db.serialize(() => {
     db.run(
@@ -33,16 +29,6 @@ client.once("ready", () => {
     );
   });
 
-  // Slash Command 생성
-  client.application.commands.create(
-    new SlashCommandBuilder().setName("test").setDescription("test")
-  );
-});
-
-// dotenv 업로드 하면 지워주기
-require("dotenv").config();
-client.login(process.env.token);
-client.once("ready", () => {
   console.log(client.user.tag + " ready!");
   client.application.commands.create(
     new SlashCommandBuilder().setName("test").setDescription("test")
