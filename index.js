@@ -3,6 +3,7 @@ const {
   GatewayIntentBits,
   SlashCommandBuilder,
 } = require("discord.js");
+const { healthCheck } = require("./healthCheck");
 const { Guilds, GuildMessages, MessageContent } = GatewayIntentBits;
 const client = new Client({ intents: [Guilds, GuildMessages, MessageContent] });
 
@@ -21,3 +22,8 @@ client.on("messageCreate", (msg) => {
     msg.reply("죽어 양범건ㅋ");
   }
 });
+
+const healthCheck = require("./healthCheck");
+
+healthCheck.listen(44444);
+startBot();
