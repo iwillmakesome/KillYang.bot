@@ -7,6 +7,7 @@ const { healthCheck } = require("./healthCheck");
 const { Guilds, GuildMessages, MessageContent } = GatewayIntentBits;
 const client = new Client({ intents: [Guilds, GuildMessages, MessageContent] });
 
+require("dotenv").config();
 client.login(process.env.token);
 client.once("ready", () => {
   console.log(client.user.tag + " ready!");
@@ -23,7 +24,15 @@ client.on("messageCreate", (msg) => {
   }
 });
 
-const healthCheck = require("./healthCheck");
+//// healthCheck
+const express = require("express");
+const app = express();
 
-healthCheck.listen(44444);
-startBot();
+app.get("/health", (req, res) => {
+  res.status(200).send("OK");
+});
+
+const port = process.env.PORT || 44444;
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
