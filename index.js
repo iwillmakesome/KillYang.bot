@@ -30,7 +30,13 @@ client.on("messageCreate", (msg) => {
 
     // 형식화된 날짜 문자열을 생성합니다.
     const formattedDate = `${year}.${month}.${day}`;
-    msg.reply(`RIP 양범건 (2002.12.26 ~ ${formattedDate}`);
+    msg.reply(`RIP 양범건 (2002.12.26 ~ ${formattedDate})`);
+    return;
+  }
+
+  if (content == "죽어 양범건") {
+    msg.reply(`당신은 양범건을 죽였습니다. RIP 양범건`);
+    return;
   }
 });
 
