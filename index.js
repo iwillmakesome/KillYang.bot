@@ -152,7 +152,7 @@ client.on("interactionCreate", async (interaction) => {
 
   if (commandName === "kill") {
     await setLastDeath();
-    msg.reply(`당신은 양범건을 죽였습니다. RIP 양범건`);
+    await interaction.reply(`당신은 양범건을 죽였습니다. RIP 양범건`);
   }
 });
 
