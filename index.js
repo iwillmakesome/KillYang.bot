@@ -11,7 +11,7 @@ const sqlite3 = require("sqlite3").verbose();
 const db = new sqlite3.Database("./LastDeath.db");
 
 // dotenv 업로드 하면 지워주기
-require("dotenv").config();
+// require("dotenv").config();
 
 client.login(process.env.token);
 client.once("ready", () => {
