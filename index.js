@@ -7,7 +7,8 @@ const { healthCheck } = require("./healthCheck");
 const { Guilds, GuildMessages, MessageContent } = GatewayIntentBits;
 const client = new Client({ intents: [Guilds, GuildMessages, MessageContent] });
 
-require("dotenv").config();
+// dotenv 업로드 하면 지워주기
+// require("dotenv").config();
 client.login(process.env.token);
 client.once("ready", () => {
   console.log(client.user.tag + " ready!");
