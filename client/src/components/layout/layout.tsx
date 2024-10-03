@@ -1,16 +1,6 @@
 import { Outlet } from 'react-router-dom';
-import { useEffect, useState } from 'react';
 
 export default function Layout() {
-  const [API_URL, setAPI_URL] = useState<string>('');
-
-  useEffect(() => {
-    setAPI_URL(
-      document.querySelector('meta[name="API_URL"]')?.getAttribute('content') ??
-        ''
-    );
-  }, []);
-
   return (
     <>
       <header></header>
@@ -25,7 +15,12 @@ export default function Layout() {
             </div>
           </footer>
         </div>
-        <video src={`${API_URL}/guanzaccmim.mp4`} autoPlay muted loop />
+        <video
+          src={`${window.location.origin}/guanzaccmim.mp4`}
+          autoPlay
+          muted
+          loop
+        />
       </div>
     </>
   );

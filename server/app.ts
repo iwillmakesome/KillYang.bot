@@ -8,7 +8,6 @@ const PORT = process.env.PORT || 44444;
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config();
 }
-const API_URL = process.env.API_URL || `http://localhost:${PORT}/api`;
 
 // discord bot
 const bot = require('./bot/bot');
@@ -20,11 +19,7 @@ app.use(express.static(path.join(__dirname, '../dist'))); // 빌드 폴더 경�
 app.use(express.static(path.join(__dirname, '../public'))); // public 폴더 경로
 
 app.get('*', (req: Request, res: Response) => {
-  res.sendFile(path.join(__dirname, '../dist', 'index.html'), {
-    headers: {
-      API_URL: API_URL, // API_URL을 헤더로 추가
-    },
-  });
+  res.sendFile(path.join(__dirname, '../dist', 'index.html'));
 });
 
 app.listen(PORT, () => {

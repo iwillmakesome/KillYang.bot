@@ -7,16 +7,12 @@ export default function ProfileInfo() {
   const [lastDeath, setLastDeath] = useState<string>('');
 
   const loadDate = async () => {
-    const API_URL =
-      document.querySelector('meta[name="API_URL"]')?.getAttribute('content') ??
-      '';
-
-    const countRes = await fetch(`${API_URL}/count`, {
+    const countRes = await fetch(`${window.location.origin}/api/count`, {
       method: 'GET',
     });
     setDeathCount(await countRes.json());
 
-    const lastRes = await fetch(`${API_URL}/last`, {
+    const lastRes = await fetch(`${window.location.origin}/api/last`, {
       method: 'GET',
     });
     setLastDeath(await lastRes.json());

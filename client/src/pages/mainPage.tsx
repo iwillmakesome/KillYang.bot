@@ -8,11 +8,7 @@ export default function MainPage() {
   const [killLogList, setKillLogList] = useState<any>([]);
 
   const loadData = async () => {
-    const API_URL =
-      document.querySelector('meta[name="API_URL"]')?.getAttribute('content') ??
-      '';
-
-    const response: any = await fetch(`${API_URL}`, {
+    const response: any = await fetch(`${window.location.origin}/api`, {
       method: 'GET',
     });
     const data = await response.json();
