@@ -1,3 +1,3 @@
-# KillYangBot
+# KillYang.bot
 
 Discord Bot - KillYang
