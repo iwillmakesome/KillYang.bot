@@ -1,4 +1,4 @@
 {
-  "watch": ["server", "client/src"],
-  "ext": "ts, tsx, json"
+  "watch": ["server", "client"],
+  "ext": "ts, tsx, json, css, html"
 }

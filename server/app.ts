@@ -15,8 +15,8 @@ bot.startBot();
 
 app.use('/api', require('./routers/api'));
 
+app.use(express.static(path.join(__dirname, './public'))); // public 폴더 경로
 app.use(express.static(path.join(__dirname, '../dist'))); // 빌드 폴더 경로
-app.use(express.static(path.join(__dirname, '../public'))); // public 폴더 경로
 
 app.get('*', (req: Request, res: Response) => {
   res.sendFile(path.join(__dirname, '../dist', 'index.html'));
