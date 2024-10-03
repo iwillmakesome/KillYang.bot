@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "cross-env NODE_ENV=development nodemon --exec \"npm run build --prefix client && ts-node server/app.ts\"",
-    "start": "cross-env NODE_ENV=development ts-node server/app.ts",
+    "start": "cross-env NODE_ENV=production ts-node server/app.ts",
     "build": "cross-env NODE_ENV=production npm run build --prefix client",
     "client": "npm run dev --prefix client"
   },
