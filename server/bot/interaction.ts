@@ -38,7 +38,9 @@ export const interactionHandler = async (interaction: Interaction) => {
   if (commandName === 'deathcount') {
     try {
       const deathCount = await getDeathCount();
-      await interaction.reply(`양범건은 지금까지 ${deathCount}번 죽었습니다.`);
+      await interaction.reply(
+        `양범건은 지금까지 ${deathCount}번 죽었습니다.\n\n[KillYang.bot](https://united-lorrayne-illmks-c2ae8082.koyeb.app/)에서 더 많은 정보를 확인할 수 있어요.`
+      );
     } catch (err) {
       console.log('deathcount err');
     }
@@ -49,7 +51,7 @@ export const interactionHandler = async (interaction: Interaction) => {
       const lastDeats = await getLastDeath();
       if (lastDeats) {
         await interaction.reply(
-          `RIP 양범건 (2002.12.26 ~ ${formatDate(lastDeats)})\n[KillYang.bot](https://united-lorrayne-illmks-c2ae8082.koyeb.app/)에서 더 많은 정보를 확인할 수 있어요.`
+          `RIP 양범건 (2002.12.26 ~ ${formatDate(lastDeats)})\n\n[KillYang.bot](https://united-lorrayne-illmks-c2ae8082.koyeb.app/)에서 더 많은 정보를 확인할 수 있어요.`
         );
       }
     } catch (err) {
