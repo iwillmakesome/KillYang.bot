@@ -24,7 +24,7 @@ export default function ProfileInfo() {
   return (
     <>
       <div className='profileInfo'>
-        <h1>Y . B . G</h1>
+        <h1>양 . 범 . 건</h1>
         <div className='live'>2002.12.26 ~ {lastDeath}</div>
         <div className='death-count'>지금까지 {deathCount}번 죽었습니다.</div>
       </div>

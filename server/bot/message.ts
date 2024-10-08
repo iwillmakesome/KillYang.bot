@@ -32,7 +32,9 @@ export const messageHandler = async (msg: Message) => {
 
   if (content == '양범건 죽은 횟수') {
     const deathCount = await getDeathCount();
-    msg.reply(`양범건은 지금까지 ${deathCount}번 죽었습니다.`);
+    msg.reply(
+      `양범건은 지금까지 ${deathCount}번 죽었습니다.\n[KillYang.bot](https://united-lorrayne-illmks-c2ae8082.koyeb.app/)에서 더 많은 정보를 확인할 수 있어요.`
+    );
     return;
   }
 };

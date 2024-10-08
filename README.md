@@ -9,10 +9,14 @@
 # Dependencies
 
 - client
+
   - react
   - typescript
   - vite
+
 - server
   - express
   - sqlite3
   - discord.js
+
+---
