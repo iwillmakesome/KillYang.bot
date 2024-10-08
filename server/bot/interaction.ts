@@ -63,12 +63,10 @@ export const interactionHandler = async (interaction: Interaction) => {
     try {
       const reason = options.get('reason');
       if (reason) {
-        await saveLastDeath(
-          nickname,
-          avatarURL,
-          `${options.get('reason')?.value}`
+        await saveLastDeath(nickname, avatarURL, `${reason.value}`);
+        await interaction.reply(
+          `당신은 양범건을 죽였습니다. 사유 : ${reason.value}`
         );
-        await interaction.reply(`당신은 양범건을 죽였습니다. 사유 : ${reason}`);
       } else {
         await saveLastDeath(nickname, avatarURL, '그냥');
         await interaction.reply(`당신은 양범건을 죽였습니다. 사유 : 그냥`);
