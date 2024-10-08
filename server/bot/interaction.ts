@@ -7,7 +7,7 @@ export const createCommands = async (client: Client) => {
   client.application?.commands.create(
     new SlashCommandBuilder()
       .setName('kill')
-      .setDescription('양범건을 죽이고싶나요?')
+      .setDescription('양범건을 죽이고싶나요? [사유를 적어주세요]')
       .addStringOption((option) =>
         option.setName('reason').setDescription('사유').setRequired(false)
       )
@@ -49,7 +49,7 @@ export const interactionHandler = async (interaction: Interaction) => {
       const lastDeats = await getLastDeath();
       if (lastDeats) {
         await interaction.reply(
-          `RIP 양범건 (2002.12.26 ~ ${formatDate(lastDeats)})`
+          `RIP 양범건 (2002.12.26 ~ ${formatDate(lastDeats)})\n[KillYang.bot](https://united-lorrayne-illmks-c2ae8082.koyeb.app/)에서 더 많은 정보를 확인할 수 있어요.`
         );
       }
     } catch (err) {
@@ -59,16 +59,17 @@ export const interactionHandler = async (interaction: Interaction) => {
 
   if (commandName === 'kill') {
     try {
-      if (options.get('reason')) {
+      const reason = options.get('reason');
+      if (reason) {
         await saveLastDeath(
           nickname,
           avatarURL,
           `${options.get('reason')?.value}`
         );
-        await interaction.reply(`당신은 양범건을 죽였습니다. RIP 양범건`);
+        await interaction.reply(`당신은 양범건을 죽였습니다. 사유 : ${reason}`);
       } else {
         await saveLastDeath(nickname, avatarURL, '그냥');
-        await interaction.reply(`당신은 양범건을 죽였습니다. RIP 양범건`);
+        await interaction.reply(`당신은 양범건을 죽였습니다. 사유 : 그냥`);
       }
     } catch (err) {
       console.log('kill err');
